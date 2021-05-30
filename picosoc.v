@@ -69,11 +69,18 @@ module picosoc (
 	input  flash_io2_di,
 	input  flash_io3_di
 );
-	parameter [0:0] BARREL_SHIFTER = 1;
-	parameter [0:0] ENABLE_MULDIV = 1;
-	parameter [0:0] ENABLE_COMPRESSED = 1;
+	parameter [0:0] BARREL_SHIFTER = 0;
+	parameter [0:0] ENABLE_MULDIV = 0;
+	parameter [0:0] ENABLE_COMPRESSED = 0;
 	parameter [0:0] ENABLE_COUNTERS = 1;
 	parameter [0:0] ENABLE_IRQ_QREGS = 0;
+	parameter [0:0] ENABLE_COUNTERS64 = 1;
+	parameter [0:0] ENABLE_REGS_16_31 = 1;
+	parameter [0:0] ENABLE_IRQ = 0;
+	parameter [0:0] ENABLE_IRQ_TIMER = 0;
+	parameter [0:0] TWO_STAGE_SHIFT = 0;	
+
+
 
 	parameter integer MEM_WORDS = 256;
 	parameter [31:0] STACKADDR = (4*MEM_WORDS);       // end of memory
@@ -136,10 +143,14 @@ module picosoc (
 		.BARREL_SHIFTER(BARREL_SHIFTER),
 		.COMPRESSED_ISA(ENABLE_COMPRESSED),
 		.ENABLE_COUNTERS(ENABLE_COUNTERS),
+		.ENABLE_COUNTERS64(ENABLE_COUNTERS64),
+		.ENABLE_REGS_16_31(ENABLE_REGS_16_31),
 		.ENABLE_MUL(ENABLE_MULDIV),
 		.ENABLE_DIV(ENABLE_MULDIV),
-		.ENABLE_IRQ(1),
-		.ENABLE_IRQ_QREGS(ENABLE_IRQ_QREGS)
+		.ENABLE_IRQ(ENABLE_IRQ),
+		.ENABLE_IRQ_QREGS(ENABLE_IRQ_QREGS),
+		.ENABLE_IRQ_TIMER(ENABLE_IRQ_TIMER),
+		.TWO_STAGE_SHIFT(TWO_STAGE_SHIFT)
 	) cpu (
 		.clk         (clk        ),
 		.resetn      (resetn     ),

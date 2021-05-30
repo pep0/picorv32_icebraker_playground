@@ -41,7 +41,7 @@ icebreaker_sections.lds: sections.lds
 	$(CROSS)cpp -P -DICEBREAKER -o $@ $^
 
 icebreaker_fw.elf: icebreaker_sections.lds start.s firmware.c
-	$(CROSS)gcc $(CFLAGS) -DICEBREAKER -march=rv32imc -mabi=ilp32 -Wl,-Bstatic,-T,icebreaker_sections.lds,--strip-debug -ffreestanding -nostdlib -o icebreaker_fw.elf start.s firmware.c
+	$(CROSS)gcc $(CFLAGS) -DICEBREAKER -march=rv32i -mabi=ilp32 -Wl,-Bstatic,-T,icebreaker_sections.lds,--strip-debug -ffreestanding -nostdlib -o icebreaker_fw.elf start.s firmware.c
 
 icebreaker_fw.hex: icebreaker_fw.elf
 	$(CROSS)objcopy -O verilog icebreaker_fw.elf icebreaker_fw.hex
