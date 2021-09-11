@@ -35,8 +35,14 @@ module icebreaker (
 	output led4,
 	output led5,
 
+	input btn1,
+	input btn2,
+	input btn3,
+
 	output ledr_n,
 	output ledg_n,
+
+	input btn_n,
 
 	output flash_csb,
 	output flash_clk,
@@ -64,6 +70,22 @@ module icebreaker (
 
 	assign ledr_n = !leds[6];
 	assign ledg_n = !leds[7];
+
+
+	wire [3:0] btns;
+
+	reg [3:0] btns_r0;
+	reg [3:0] btns_r1;
+
+	always @(posedge clk) begin
+		btns_r1 <= {!btn_n, btn3, btn2, btn1};
+		btns_r0 <= btns_r1;
+	end
+
+
+
+	assign btns = btns_r0;
+
 
 	wire flash_io0_oe, flash_io0_do, flash_io0_di;
 	wire flash_io1_oe, flash_io1_do, flash_io1_di;
@@ -103,11 +125,15 @@ module icebreaker (
 	reg  [31:0] iomem_rdata;
 
 	reg [31:0] gpio;
-	assign leds = gpio;
+	assign leds = gpio[7:0];
+
+	reg [31:0] gpo;
+	assign btns = gpo[3:0];
 
 	always @(posedge clk) begin
 		if (!resetn) begin
 			gpio <= 0;
+			gpo[31:4] <= 0;
 		end else begin
 			iomem_ready <= 0;
 			if (iomem_valid && !iomem_ready && iomem_addr[31:24] == 8'h 03) begin
@@ -117,6 +143,10 @@ module icebreaker (
 				if (iomem_wstrb[1]) gpio[15: 8] <= iomem_wdata[15: 8];
 				if (iomem_wstrb[2]) gpio[23:16] <= iomem_wdata[23:16];
 				if (iomem_wstrb[3]) gpio[31:24] <= iomem_wdata[31:24];
+			end
+			if (iomem_valid && !iomem_ready && iomem_addr[31:24] == 8'h 05) begin
+				iomem_ready <= 1;
+				iomem_rdata <= gpo;
 			end
 		end
 	end
