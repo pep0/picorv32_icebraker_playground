@@ -71,7 +71,8 @@ module icebreaker (
 	assign ledr_n = !leds[6];
 	assign ledg_n = !leds[7];
 
-
+	
+	/* Butons and synchronization*/
 	wire [3:0] btns;
 
 	reg [3:0] btns_r0;
@@ -85,6 +86,8 @@ module icebreaker (
 
 
 	assign btns = btns_r0;
+
+
 
 
 	wire flash_io0_oe, flash_io0_do, flash_io0_di;
