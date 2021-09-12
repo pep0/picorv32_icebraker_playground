@@ -16,8 +16,8 @@ all: $(GW_NAME).rpt $(GW_NAME).bin
 %.rpt: %.asc
 	icetime $(if $(FREQ),-c $(FREQ)) -d $(DEVICE) -mtr $@ $<
 
-%_tb: %_tb.v %.v
-	iverilog -g2012 -o $@ $^
+%_tb.vvp: %_tb.v $(GW_SOURCE) $(GW_SIM)
+	iverilog -g2012 -o $@ $^ `yosys-config --datdir/ice40/cells_sim.v`
 
 %_tb.vcd: %_tb
 	vvp -N $< +vcd=$@

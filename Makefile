@@ -10,9 +10,10 @@ FW_ADDRESS_OFFSET=1M
 FW_NAME=picosoc_fw
 FW_SOURCE_FILES=start.s firmware.c
 
-GW_NAME=picosoc
+GW_NAME=icebreaker_psoc
 GW_SOURCE_TOP=icebreaker
-GW_SOURCE=icebreaker.v ice40up5k_spram.v spimemio.v simpleuart.v picosoc.v picorv32.v
+GW_SOURCE=icebreaker_psoc.v ice40up5k_spram.v spimemio.v simpleuart.v picosoc.v picorv32.v
+GW_SIM=spiflash.v
 
 
 
