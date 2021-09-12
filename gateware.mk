@@ -19,8 +19,8 @@ all: $(GW_NAME).rpt $(GW_NAME).bin
 %_tb.vvp: %_tb.v $(GW_SOURCE) $(GW_SIM)
 	iverilog -g2012 -o $@ $^ `yosys-config --datdir/ice40/cells_sim.v`
 
-%_tb.vcd: %_tb
-	vvp -N $< +vcd=$@
+%_tb.vcd: %_tb.vvp
+	vvp -N $< +vcd=$@ $(if $(FW_NAME),+firmware=$(FW_NAME).hex)
 
 %_syn.v: %.blif
 	yosys -p 'read_blif -wideports $^; write_verilog $@'
@@ -30,6 +30,8 @@ all: $(GW_NAME).rpt $(GW_NAME).bin
 
 %_syntb.vcd: %_syntb
 	vvp -N $< +vcd=$@
+
+sim_gw_fw: $(FW_NAME).hex $(GW_NAME)_tb.vcd
 
 prog_gw: $(GW_NAME).bin
 	iceprog $<
