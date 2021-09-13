@@ -22,15 +22,6 @@ all: $(GW_NAME).rpt $(GW_NAME).bin
 %_tb.vcd: %_tb.vvp
 	vvp -N $< +vcd=$@ $(if $(FW_NAME),+firmware=$(FW_NAME).hex)
 
-%_syn.v: %.blif
-	yosys -p 'read_blif -wideports $^; write_verilog $@'
-
-%_syntb: %_tb.v %_syn.v
-	iverilog -o $@ $^ `yosys-config --datdir/ice40/cells_sim.v`
-
-%_syntb.vcd: %_syntb
-	vvp -N $< +vcd=$@
-
 sim_gw_fw: $(FW_NAME).hex $(GW_NAME)_tb.vcd
 
 prog_gw: $(GW_NAME).bin
@@ -41,7 +32,7 @@ sudo-prog_gw: $(GW_NAME).bin
 	sudo iceprog $<
 
 clean_gw:
-	rm -f $(GW_NAME).blif $(GW_NAME).asc $(GW_NAME).rpt $(GW_NAME).bin $(GW_NAME).json $(GW_NAME).log $(ADD_CLEAN)
+	rm -f $(GW_NAME).blif $(GW_NAME).asc $(GW_NAME).rpt $(GW_NAME).bin $(GW_NAME).json $(GW_NAME).log $(GW_NAME)_tb.vvp $(ADD_CLEAN)
 
 .SECONDARY:
 .PHONY: all prog_gw clean

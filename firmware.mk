@@ -5,7 +5,7 @@ prog_fw: $(FW_NAME).bin
 clean_fw:
 	rm -f $(FW_NAME)_sections.lds $(FW_NAME).elf $(FW_NAME).hex $(FW_NAME).bin
 
-$(FW_NAME)_sections.lds: sections.lds
+$(FW_NAME)_sections.lds: $(FW_DIR)/sections.lds
 	$(CROSS)cpp -P -DICEBREAKER -o $@ $^
 
 $(FW_NAME).elf: $(FW_NAME)_sections.lds $(FW_SOURCE_FILES)
