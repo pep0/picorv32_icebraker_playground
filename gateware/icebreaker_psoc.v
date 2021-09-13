@@ -49,7 +49,12 @@ module icebreaker (
 	inout  flash_io0,
 	inout  flash_io1,
 	inout  flash_io2,
-	inout  flash_io3
+	inout  flash_io3,
+
+	output DA_MCLK,
+	output DA_LRCK,
+	output DA_SCLK,
+	output DA_SDIN
 );
 	parameter integer MEM_WORDS = 32768;
 
@@ -133,10 +138,17 @@ module icebreaker (
 	reg [31:0] gpo;
 	assign btns = gpo[3:0];
 
+	reg[31:0] synth_reg_1;
+	assign gate = synth_reg_1[24];
+	assign waveform[1:0] = synth_reg_1[17:16];
+	assign velocity[7:0] = synth_reg_1[15:8];
+	assign pitch[7:0] = synth_reg_1[7:0];
+
 	always @(posedge clk) begin
 		if (!resetn) begin
 			gpio <= 0;
 			gpo[31:4] <= 0;
+			synth_reg_1 <= 0;
 		end else begin
 			iomem_ready <= 0;
 			if (iomem_valid && !iomem_ready && iomem_addr[31:24] == 8'h 03) begin
@@ -147,12 +159,41 @@ module icebreaker (
 				if (iomem_wstrb[2]) gpio[23:16] <= iomem_wdata[23:16];
 				if (iomem_wstrb[3]) gpio[31:24] <= iomem_wdata[31:24];
 			end
+			if (iomem_valid && !iomem_ready && iomem_addr[31:24] == 8'h 04) begin
+				iomem_ready <= 1;
+				iomem_rdata <= synth_reg_1;
+				if (iomem_wstrb[0]) synth_reg_1[ 7: 0] <= iomem_wdata[ 7: 0];
+				if (iomem_wstrb[1]) synth_reg_1[15: 8] <= iomem_wdata[15: 8];
+				if (iomem_wstrb[2]) synth_reg_1[23:16] <= iomem_wdata[23:16];
+				if (iomem_wstrb[3]) synth_reg_1[31:24] <= iomem_wdata[31:24];
+			end
 			if (iomem_valid && !iomem_ready && iomem_addr[31:24] == 8'h 05) begin
 				iomem_ready <= 1;
 				iomem_rdata <= gpo;
 			end
 		end
 	end
+
+
+	/*Synthesizer*/
+	
+	wire [1:0]waveform;
+	wire [7:0]velocity;
+	wire [7:0]pitch;
+	wire gate;
+	synth synth_i(
+		.CLK(clk),
+		.BTN_N(btn_n),
+		.DA_MCLK(DA_MCLK),
+		.DA_LRCK(DA_LRCK),
+		.DA_SCLK(DA_SCLK),
+		.DA_SDIN(DA_SDIN),
+		.waveform(waveform),
+		.velocity(velocity),
+		.pitch(pitch),
+		.gate(gate)
+	
+	);
 
 	picosoc #(
 		.BARREL_SHIFTER(0),

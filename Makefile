@@ -16,7 +16,7 @@ FW_SOURCE_FILES=$(FW_DIR)/start.s $(FW_DIR)/firmware.c
 
 GW_NAME=$(OUT_DIR)/icebreaker_psoc
 GW_SOURCE_TOP=icebreaker
-GW_SOURCE=$(GW_DIR)/icebreaker_psoc.v $(GW_DIR)/ice40up5k_spram.v $(GW_DIR)/spimemio.v $(GW_DIR)/simpleuart.v $(GW_DIR)/picosoc.v $(GW_DIR)/picorv32.v
+GW_SOURCE=$(GW_DIR)/icebreaker_psoc.v $(GW_DIR)/ice40up5k_spram.v $(GW_DIR)/spimemio.v $(GW_DIR)/simpleuart.v $(GW_DIR)/picosoc.v $(GW_DIR)/picorv32.v $(GW_DIR)/synth/synth.v $(GW_DIR)/synth/i2s/wb_i2s_out.v $(GW_DIR)/synth/audio/amplifier.v $(GW_DIR)/synth/audio/ad_envelope.v $(GW_DIR)/synth/dds/dds.v $(GW_DIR)/synth/dds/lut_dds.v $(GW_DIR)/synth/dds/lut_dds.v $(GW_DIR)/synth/dds/lut_pitch.v
 GW_SIM=$(GW_DIR)/spiflash.v
 
 

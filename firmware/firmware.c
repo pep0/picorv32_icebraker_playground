@@ -476,6 +476,20 @@ void btn_led()
 	}
 }
 
+void play_note()
+{
+	print("Synth mode\n");
+	uint32_t gate = 0x01000000;
+	uint32_t pitch = 0x0000000F;
+	reg_synth = (reg_synth & 0xFFFF00FF) | (getchar()<<8) | gate | pitch;
+	
+	
+	putchar(getchar());
+	reg_synth = 0x00000000;
+	putchar('\n');
+	
+}
+
 // --------------------------------------------------------
 
 void main()
@@ -579,6 +593,8 @@ void main()
 			case 'f':
 				btn_led();
 				break;
+			case 's':
+				play_note();
 			default:
 				continue;
 			}
