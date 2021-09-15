@@ -490,6 +490,108 @@ void play_note()
 	
 }
 
+
+#define STATUS_BYTE_BITMASK  0x80
+
+enum StatusMessage{
+	state_note_off=0x80,
+	state_note_on=0x90
+};
+
+typedef struct MidiMessage{
+	enum StatusMessage status_message;
+	uint8_t channel;
+	uint8_t pitch;
+	uint8_t velocity;
+}MidiMessage;
+
+
+static char c = '0'
+static MidiMessage midi_msg;
+
+// States in form of functions
+
+void handle_state_receive_first_byte(void);
+void handle_state_dispatch_status(void);
+void handle_state_receive_fist_data_byte(void);
+void handle_state_receive_second_data_byte(void);
+void handle_state_handle_message(void);
+
+void (*do_state)(void);
+
+void handle_state_dispatch_status(void)
+{
+	c = get_char();
+	if(c && 0x80>0)
+		do_state = handle_state_dispatch_status;
+	
+}
+
+void handle_state_dispatch_status(void)
+{	
+	if(c & state_note_off)
+	{
+		midi_msg.status_message = state_off;
+		do_state = handle_state_receive_first_data_byte;
+	}
+	else if(c & state_note_on)
+	{
+		midi_msg.status_message = stats_on;
+		do_state = handle_state_receive_first_data_byte;
+	}
+	else
+		do_state = handle_state_receive_first_byte;
+}
+
+void handle_state_receive_first_data_byte(void)
+{
+	c = get_char();
+	if(c & STATUS_BYTE_BITMASK > 0)
+	{
+		//Status byte	
+		do_state = handle_state_receive_first_byte;
+
+	}
+	else
+	{
+		//Data byte
+		midi_msg.pitch = c;
+		do_state = handle_state_handle_message;
+	}
+}
+
+void handle_state_receive_first_data_byte(void)
+{
+	c = get_char();
+	if(c & STATUS_BYTE_BITMASK > 0)
+	{
+		//Status byte	
+		do_state = handle_state_receive_first_byte;
+	}
+	else
+	{
+		//Data byte
+		midi_msg.velocity = c;
+		do_state = handle_state_handle_message;
+	}
+
+	
+}
+
+void handle_state_handle_message(void)
+{
+
+	//handle now the message
+	
+	do_state = handle_state_receive_first_date_byte;
+
+}
+
+void start_midi_state_machine()
+{
+
+}
+
 // --------------------------------------------------------
 
 void main()
