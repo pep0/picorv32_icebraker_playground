@@ -506,37 +506,45 @@ typedef struct MidiMessage{
 }MidiMessage;
 
 
-static char c = '0'
+static char c = '0';
 static MidiMessage midi_msg;
 
 // States in form of functions
-
+void start_midi_state_machine(void);
 void handle_state_receive_first_byte(void);
 void handle_state_dispatch_status(void);
-void handle_state_receive_fist_data_byte(void);
+void handle_state_receive_first_data_byte(void);
 void handle_state_receive_second_data_byte(void);
 void handle_state_handle_message(void);
 
 void (*do_state)(void);
 
-void handle_state_dispatch_status(void)
+void handle_state_receive_first_byte(void)
 {
-	c = get_char();
-	if(c && 0x80>0)
+	print("handle_state_receive_first_byte\n");
+	c = getchar();
+	if((c & 0x80)>0)
+	{	
+		print("c is status byte: ");
+		print_hex(c,2);
+		print("\n");
 		do_state = handle_state_dispatch_status;
-	
+	}
 }
 
 void handle_state_dispatch_status(void)
 {	
-	if(c & state_note_off)
+	print("handle_state_dispatch_status\n");
+	if((c & 0xF0) ==  state_note_off)
 	{
-		midi_msg.status_message = state_off;
+		print("state_note_off\n");
+		midi_msg.status_message = state_note_off;
 		do_state = handle_state_receive_first_data_byte;
 	}
-	else if(c & state_note_on)
+	else if((c & 0xF0) == state_note_on)
 	{
-		midi_msg.status_message = stats_on;
+		print("state_note_on\n");
+		midi_msg.status_message = state_note_on;
 		do_state = handle_state_receive_first_data_byte;
 	}
 	else
@@ -545,28 +553,28 @@ void handle_state_dispatch_status(void)
 
 void handle_state_receive_first_data_byte(void)
 {
-	c = get_char();
-	if(c & STATUS_BYTE_BITMASK > 0)
+	c = getchar();
+	if((c & STATUS_BYTE_BITMASK) > 0)
 	{
 		//Status byte	
-		do_state = handle_state_receive_first_byte;
+		do_state = handle_state_dispatch_status;
 
 	}
 	else
 	{
 		//Data byte
 		midi_msg.pitch = c;
-		do_state = handle_state_handle_message;
+		do_state = handle_state_receive_second_data_byte;
 	}
 }
 
-void handle_state_receive_first_data_byte(void)
+void handle_state_receive_second_data_byte(void)
 {
-	c = get_char();
-	if(c & STATUS_BYTE_BITMASK > 0)
+	c = getchar();
+	if((c & STATUS_BYTE_BITMASK) > 0)
 	{
 		//Status byte	
-		do_state = handle_state_receive_first_byte;
+		do_state = handle_state_receive_first_data_byte;
 	}
 	else
 	{
@@ -583,13 +591,26 @@ void handle_state_handle_message(void)
 
 	//handle now the message
 	
-	do_state = handle_state_receive_first_date_byte;
+	do_state = handle_state_receive_first_data_byte;
+	print("Midi Message is: \n");
+	print("Status Byte:" );
+	print_hex(midi_msg.status_message, 2);
+	print("\npitch: " );
+	print_hex(midi_msg.pitch, 2);
+	print("\nvelo: " );
+	print_hex(midi_msg.velocity, 2);
+	print("\n");
 
 }
 
 void start_midi_state_machine()
 {
 
+	do_state = handle_state_receive_first_byte;
+	while(1)
+	{
+		do_state();
+	}
 }
 
 // --------------------------------------------------------
@@ -696,7 +717,7 @@ void main()
 				btn_led();
 				break;
 			case 's':
-				play_note();
+				start_midi_state_machine();
 			default:
 				continue;
 			}
